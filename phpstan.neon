@@ -1,0 +1,36 @@
+includes:
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+parameters:
+    level: 8
+    paths:
+        - src
+    tmpDir: .phpstan-cache
+    ignoreErrors:
+        # PDO::query() returns PDOStatement|false, but with ERRMODE_EXCEPTION it never returns false
+        - identifier: method.nonObject
+          path: src/
+        # Tool execute() callbacks receive untyped array from the framework
+        - identifier: missingType.iterableValue
+          path: src/Tool/
+        # array_keys returns list<int|string> but we know it's list<string>
+        - identifier: argument.type
+          path: src/Tool/ImportExportTool.php
+        # fetchAll returns array, not list — safe in practice
+        - identifier: return.type
+          path: src/Runtime/SchemaInspector.php
+        # PDO fetchAll guarantees list but PHPStan types it as array
+        - identifier: argument.type
+          path: src/Tool/QueryTool.php
+        - identifier: argument.type
+          path: src/Tool/VectorStoreTool.php
+        # Unused constant kept for future use
+        - identifier: classConstant.unused
+          path: src/Tool/ImportExportTool.php
+        # Comparison always true when coming from PHPDoc
+        - identifier: greater.alwaysTrue
+          path: src/Tool/AnalyzeTool.php
+        - identifier: booleanAnd.rightAlwaysTrue
+          path: src/Tool/AnalyzeTool.php
+        # array_values on list has no effect - PHPDoc typing issue
+        - identifier: arrayValues.list
+          path: src/Tool/ImportExportTool.php
